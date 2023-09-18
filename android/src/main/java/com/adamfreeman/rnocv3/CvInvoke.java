@@ -107,12 +107,12 @@ class CvInvoke {
     private Object[] getObjectArr(String func, ReadableMap RM, Class[] params) {
 
         int i = 1;
-        ArrayList retObjs = new ArrayList<Object>();
+        ArrayList retObjs = new ArrayList<>();
 
         for (Class param : params) {
            String paramNum = "p" + i;
 
-           ReadableType itsType = RM.getType(paramNum);
+           ReadableType itsType = RM.getType(paramNum);           
            if (itsType == ReadableType.String) {
                // special case the string rgba and rgbat is used
                // to represent the current frame in RGBA colorspace
@@ -229,19 +229,39 @@ class CvInvoke {
 			   } 
            }
            else if (itsType == ReadableType.Array) {
-                // TODO: not sure how to check the objects here yet ... Adam
-                if (param == List.class) {
-                    // this has not been tested yet ...
-                    ReadableArray arr = RM.getArray(paramNum);
+            try {
+                ReadableArray arr = RM.getArray(paramNum);
+                if (param == List.class && isTypeMatArray(arr)) {
+                {
+                    retObjs.add(convertToMatList(arr));
+                }
+                } else {
                     retObjs.add(arr.toArrayList());
-				}
-           }
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Exception encountered: " + e.getMessage(), e);
+            }
+        }
            i++;
         }
         Object[] retArr = retObjs.toArray(new Object[retObjs.size()]);
 
         return retArr;
     }
+
+    private boolean isTypeMatArray(ReadableArray arr) {
+        return arr.size() > 0 && arr.getType(0) == ReadableType.Map && arr.getMap(0).hasKey("matIndex");
+    }
+    
+    private List<Mat> convertToMatList(ReadableArray arr) {
+        List<Mat> matList = new ArrayList<>();
+        for (int arrIndex = 0; arrIndex < arr.size(); arrIndex++) {
+            int matIndex = arr.getMap(arrIndex).getInt("matIndex");
+            matList.add((Mat)MatManager.getInstance().matAtIndex(matIndex));
+            Log.d(TAG, "mat arr " + matList);
+        }
+        return matList;
+    }        
 
     private Method findMethod(String func, ReadableMap params, Class searchClass) {
         Method retMethod = null;
