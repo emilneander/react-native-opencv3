@@ -36,10 +36,10 @@ export class Mat {
     return res
   }
 
-  setTo = (color) => {
+  setTo = (color, maskMat) => {
     // of course this could be implemented as a CvInvoke but
     // since it is probably such a common op ...
-    RNOpencv3.setTo(this, color)
+    RNOpencv3.setTo(this, color, maskMat)
   }
 
   get = async(rownum, colnum, data) => {

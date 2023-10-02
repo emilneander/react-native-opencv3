@@ -184,8 +184,12 @@ public class RNOpencv3Module extends ReactContextBaseJavaModule {
 
     // TODO: not sure if this code should be moved to MatManager
     @ReactMethod
-    public void setTo(ReadableMap mat, ReadableMap cvscalar) {
-        MatManager.getInstance().setTo(mat.getInt("matIndex"), cvscalar);
+    public void setTo(ReadableMap mat, ReadableMap cvscalar, @Nullable ReadableMap maskMat) {
+        if (maskMat != null) {
+            MatManager.getInstance().setTo(mat.getInt("matIndex"), cvscalar, maskMat.getInt("matIndex"));
+        } else {
+            MatManager.getInstance().setTo(mat.getInt("matIndex"), cvscalar, null);
+        }    
     }
 
     // TODO: ditto previous
