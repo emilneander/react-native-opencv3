@@ -124,12 +124,24 @@ class MatManager {
         return retArr;
     }
 
-    public static void setTo(int matIndex, ReadableMap cvscalar) {
+    public static void setTo(int matIndex, ReadableMap cvscalar, Integer maskMatIndex) {
         Mat dMat = (Mat)matAtIndex(matIndex);
+        Mat maskMat = null;
+        
+        if (maskMatIndex != null) {
+            maskMat = (Mat)matAtIndex(maskMatIndex);
+        }
+    
         ReadableArray scalarVal = cvscalar.getArray("vals");
-        Scalar dScalar = new Scalar(scalarVal.getDouble(0),scalarVal.getDouble(1),
-          scalarVal.getDouble(2),scalarVal.getDouble(3));
-        dMat.setTo(dScalar);
+        Scalar dScalar = new Scalar(scalarVal.getDouble(0), scalarVal.getDouble(1),
+                                    scalarVal.getDouble(2), scalarVal.getDouble(3));
+    
+        if (maskMat != null) {
+            dMat.setTo(dScalar, maskMat);
+        } else {
+            dMat.setTo(dScalar);
+        }
+        
         setMat(matIndex, dMat);
     }
 
